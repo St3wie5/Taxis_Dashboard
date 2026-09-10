@@ -417,20 +417,78 @@ def crear_asignacion():
     conexion = get_connection()
     cursor = conexion.cursor()
 
-    # Paso 1: cerrar cualquier asignación activa de este chofer
+
     cursor.execute("""
         UPDATE asignaciones
         SET fecha_fin = %s
         WHERE chofer_id = %s AND fecha_fin IS NULL;
     """, (datos["fecha_inicio"], datos["chofer_id"]))
 
-    # Paso 2: insertar la nueva asignación
-    # (aquí te toca a ti completar el INSERT)
+    cursor.execute("""
+            INSERT INTO asignaciones (chofer_id, fecha_inicio, carro_id)
+            VALUES (%s, %s, %s)
+            RETURNING id;
+        """, (
+            datos["chofer_id"], datos["fecha_inicio"], datos["carro_id"]
+        ))
 
+    nuevo_id = cursor.fetchone()[0]
+
+    
     conexion.commit()
     cursor.close()
     conexion.close()
-    return jsonify({"mensaje": "..."}), 201
+    return jsonify({"mensaje": "Asignación creada", "id": nuevo_id}), 201
+
+@app.route("/asignaciones", methods=["GET"])
+def obtener_asignaciones():
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM asignaciones;")
+    resultados = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultados)
+
+
+@app.route("/asignaciones/<int:id>", methods=["GET"])
+def obtener_asignacion(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM asignaciones WHERE id = %s;", (id,))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultado)
+
+@app.route("/asignaciones/<int:id>", methods=["PUT"])
+def actualizar_asignacion(id):
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE asignaciones
+        SET fecha_inicio = %s, fecha_fin = %s
+        WHERE id = %s;
+    """, (
+        datos["fecha_inicio"], datos["fecha_fin"], id
+    ))
+    conexion.commit()
+    filas_afectadas = cursor.rowcount
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Asignación actualizada", "filas_afectadas": filas_afectadas})
+
+@app.route("/asignaciones/<int:id>", methods=["DELETE"])
+def eliminar_asignacion(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM asignaciones WHERE id = %s;", (id,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Asignación eliminada"})
+
 #endregion
 
 
