@@ -16,7 +16,8 @@ def get_connection():
         host=os.getenv("DB_HOST"),
         port=os.getenv("DB_PORT")
     )
-#region  metodos de api para tabla choferes 
+#region  CRUD completo  para tabla choferes 
+
 @app.route("/choferes", methods=["GET"])
 def obtener_choferes():
      conexion = get_connection()
@@ -90,6 +91,7 @@ def eliminar_chofer(id):
 #endregion 
 
 #region metodos de api para tabla de carros
+
 @app.route("/carros", methods=["GET"])
 def obtener_carros():
     conexion = get_connection()
@@ -164,8 +166,272 @@ def eliminar_carro(id):
 
 #endregion 
 
+#region CRUD completo de tabla citas_gobierno
+
+@app.route("/citas_gob", methods=["GET"])
+def obtener_citas():
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM citas_gob;")
+    resultados = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultados)
 
 
+@app.route("/citas_gob/<int:id>", methods=["GET"])
+def obtener_cita(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM citas_gob WHERE id = %s;", (id,))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultado)
+
+
+@app.route("/citas_gob", methods=["POST"])
+def crear_cita():
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO citas_gob (carro_id, tipo_cita, fecha_cita, estado)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id;
+    """, (
+        datos["carro_id"], datos["tipo_cita"],
+        datos["fecha_cita"], datos["estado"]
+    ))
+    nuevo_id = cursor.fetchone()[0]
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Cita Creada exitosamente", "id": nuevo_id}), 201
+
+
+
+@app.route("/citas_gob/<int:id>", methods=["PUT"])
+def actualizar_cita(id):
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE citas_gob
+        SET tipo_cita = %s, fecha_cita = %s,
+            estado = %s
+        WHERE id = %s;
+    """, (
+        datos["tipo_cita"], datos["fecha_cita"],
+        datos["estado"], id
+    ))
+    conexion.commit()
+    filas_afectadas = cursor.rowcount
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Cita actualizada", "filas_afectadas": filas_afectadas})
+
+
+@app.route("/citas_gob/<int:id>", methods=["DELETE"])
+def eliminar_cita(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM citas_gob WHERE id = %s;", (id,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "cita eliminada"})
+
+#endregion
+
+#region CRUD completo de tabla mantenimientos 
+
+@app.route("/mantenimientos", methods=["GET"])
+def obtener_mantenimientos():
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM mantenimientos;")
+    resultados = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultados)
+
+
+@app.route("/mantenimientos/<int:id>", methods=["GET"])
+def obtener_mantenimiento(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM mantenimientos WHERE id = %s;", (id,))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultado)
+
+
+@app.route("/mantenimientos", methods=["POST"])
+def crear_cita_mantenimiento():
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO mantenimientos (carro_id, tipo_mantenimiento, fecha, costo, kilometraje, notas, estado)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        RETURNING id;
+    """, (
+        datos["carro_id"], datos["tipo_mantenimiento"],
+        datos["fecha"], datos["costo"], datos["kilometraje"], datos["notas"], datos["estado"]
+    ))
+    nuevo_id = cursor.fetchone()[0]
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Mantenimiento creado exitosamente", "id": nuevo_id}), 201
+
+
+
+@app.route("/mantenimientos/<int:id>", methods=["PUT"])
+def actualizar_mantenimiento(id):
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE mantenimientos
+        SET carro_id = %s, tipo_mantenimiento = %s, fecha = %s, costo = %s, kilometraje = %s, notas = %s, estado = %s
+        WHERE id = %s;
+    """, (
+        datos["carro_id"], datos["tipo_mantenimiento"],
+        datos["fecha"], datos["costo"], datos["kilometraje"], datos["notas"], datos["estado"], id
+    ))
+    conexion.commit()
+    filas_afectadas = cursor.rowcount
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Mantenimiento actualizado", "filas_afectadas": filas_afectadas})
+
+
+@app.route("/mantenimientos/<int:id>", methods=["DELETE"])
+def eliminar_mantenimiento(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM mantenimientos WHERE id = %s;", (id,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Mantenimiento eliminado"})
+
+#endregion 
+
+#region CRUD Completo de tabla de documentos
+
+@app.route("/documentos", methods=["GET"])
+def obtener_documentos():
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM documentos;")
+    resultados = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultados)
+
+
+@app.route("/documentos/<int:id>", methods=["GET"])
+def obtener_documento(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM documentos WHERE id = %s;", (id,))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultado)
+
+
+@app.route("/documentos", methods=["POST"])
+def crear_documento():
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        INSERT INTO documentos (chofer_id, tipo_documento, archivo, fecha_subida)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id;
+    """, (
+        datos["chofer_id"], datos["tipo_documento"], datos["archivo"], datos["fecha_subida"]
+    ))
+    nuevo_id = cursor.fetchone()[0]
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Documento agregado exitosamente", "id": nuevo_id}), 201
+
+
+
+@app.route("/documentos/<int:id>", methods=["PUT"])
+def actualizar_documento(id):
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("""
+        UPDATE documentos
+        SET tipo_documento = %s, archivo = %s, fecha_subida = %s
+        WHERE id = %s;
+    """, (
+     datos["tipo_documento"], datos["archivo"], datos["fecha_subida"], id
+    ))
+    conexion.commit()
+    filas_afectadas = cursor.rowcount
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Documento actualizado", "filas_afectadas": filas_afectadas})
+
+
+@app.route("/documentos/<int:id>", methods=["DELETE"])
+def eliminar_documento(id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("DELETE FROM documentos WHERE id = %s;", (id,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "Documento eliminado"})
+
+#endregion 
+
+#region endpoint de chofer con todos sus docs
+
+@app.route("/choferes/<int:chofer_id>/documentos", methods=["GET"])
+def obtener_documentos_de_chofer(chofer_id):
+    conexion = get_connection()
+    cursor = conexion.cursor()
+    cursor.execute("SELECT * FROM documentos WHERE chofer_id = %s;", (chofer_id,))
+    resultados = cursor.fetchall()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultados)
+
+#endregion
+
+#region endpoint de asignaciones
+@app.route("/asignaciones", methods=["POST"])
+def crear_asignacion():
+    datos = request.get_json()
+    conexion = get_connection()
+    cursor = conexion.cursor()
+
+    # Paso 1: cerrar cualquier asignación activa de este chofer
+    cursor.execute("""
+        UPDATE asignaciones
+        SET fecha_fin = %s
+        WHERE chofer_id = %s AND fecha_fin IS NULL;
+    """, (datos["fecha_inicio"], datos["chofer_id"]))
+
+    # Paso 2: insertar la nueva asignación
+    # (aquí te toca a ti completar el INSERT)
+
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return jsonify({"mensaje": "..."}), 201
+#endregion
 
 
 
