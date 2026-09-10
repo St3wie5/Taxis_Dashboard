@@ -3,10 +3,13 @@ import os
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 import psycopg2
+from psycopg2.extras import RealDictCursor
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__)   
+CORS(app)
 
 def get_connection():
      return psycopg2.connect(
@@ -21,7 +24,7 @@ def get_connection():
 @app.route("/choferes", methods=["GET"])
 def obtener_choferes():
      conexion = get_connection()
-     cursor = conexion.cursor()
+     cursor = conexion.cursor(cursor_factory=RealDictCursor)
      cursor.execute("SELECT * FROM choferes;")
      resultados = cursor.fetchall()
      cursor.close()
@@ -32,7 +35,7 @@ def obtener_choferes():
 @app.route("/choferes/<int:id>", methods=["GET"])
 def obtener_chofer(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM choferes WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -44,7 +47,7 @@ def obtener_chofer(id):
 def crear_chofer():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         INSERT INTO choferes (nombre, ap_paterno, ap_materno, direccion, telefono, fecha_inicio, reportado)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -63,7 +66,7 @@ def crear_chofer():
 def actualizar_chofer(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE choferes
         SET nombre = %s, ap_paterno = %s, ap_materno = %s,
@@ -82,7 +85,7 @@ def actualizar_chofer(id):
 @app.route("/choferes/<int:id>", methods=["DELETE"])
 def eliminar_chofer(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM choferes WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -95,7 +98,7 @@ def eliminar_chofer(id):
 @app.route("/carros", methods=["GET"])
 def obtener_carros():
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM carros;")
     resultados = cursor.fetchall()
     cursor.close()
@@ -106,7 +109,7 @@ def obtener_carros():
 @app.route("/carros/<string:id>", methods=["GET"])
 def obtener_carro(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM carros WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -118,7 +121,7 @@ def obtener_carro(id):
 def crear_carro():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         INSERT INTO carros (id, marca, modelo, anio, placas, serie, motor, duenio, estado)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
@@ -137,7 +140,7 @@ def crear_carro():
 def actualizar_carro(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE carros
         SET marca = %s, modelo = %s,
@@ -157,7 +160,7 @@ def actualizar_carro(id):
 @app.route("/carros/<string:id>", methods=["DELETE"])
 def eliminar_carro(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM carros WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -171,7 +174,7 @@ def eliminar_carro(id):
 @app.route("/citas_gob", methods=["GET"])
 def obtener_citas():
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM citas_gob;")
     resultados = cursor.fetchall()
     cursor.close()
@@ -182,7 +185,7 @@ def obtener_citas():
 @app.route("/citas_gob/<int:id>", methods=["GET"])
 def obtener_cita(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM citas_gob WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -194,7 +197,7 @@ def obtener_cita(id):
 def crear_cita():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         INSERT INTO citas_gob (carro_id, tipo_cita, fecha_cita, estado)
         VALUES (%s, %s, %s, %s)
@@ -215,7 +218,7 @@ def crear_cita():
 def actualizar_cita(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE citas_gob
         SET tipo_cita = %s, fecha_cita = %s,
@@ -235,7 +238,7 @@ def actualizar_cita(id):
 @app.route("/citas_gob/<int:id>", methods=["DELETE"])
 def eliminar_cita(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM citas_gob WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -249,7 +252,7 @@ def eliminar_cita(id):
 @app.route("/mantenimientos", methods=["GET"])
 def obtener_mantenimientos():
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM mantenimientos;")
     resultados = cursor.fetchall()
     cursor.close()
@@ -260,7 +263,7 @@ def obtener_mantenimientos():
 @app.route("/mantenimientos/<int:id>", methods=["GET"])
 def obtener_mantenimiento(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM mantenimientos WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -272,7 +275,7 @@ def obtener_mantenimiento(id):
 def crear_cita_mantenimiento():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         INSERT INTO mantenimientos (carro_id, tipo_mantenimiento, fecha, costo, kilometraje, notas, estado)
         VALUES (%s, %s, %s, %s, %s, %s, %s)
@@ -293,7 +296,7 @@ def crear_cita_mantenimiento():
 def actualizar_mantenimiento(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE mantenimientos
         SET carro_id = %s, tipo_mantenimiento = %s, fecha = %s, costo = %s, kilometraje = %s, notas = %s, estado = %s
@@ -312,7 +315,7 @@ def actualizar_mantenimiento(id):
 @app.route("/mantenimientos/<int:id>", methods=["DELETE"])
 def eliminar_mantenimiento(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM mantenimientos WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -326,7 +329,7 @@ def eliminar_mantenimiento(id):
 @app.route("/documentos", methods=["GET"])
 def obtener_documentos():
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM documentos;")
     resultados = cursor.fetchall()
     cursor.close()
@@ -337,7 +340,7 @@ def obtener_documentos():
 @app.route("/documentos/<int:id>", methods=["GET"])
 def obtener_documento(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM documentos WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -349,7 +352,7 @@ def obtener_documento(id):
 def crear_documento():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         INSERT INTO documentos (chofer_id, tipo_documento, archivo, fecha_subida)
         VALUES (%s, %s, %s, %s)
@@ -369,7 +372,7 @@ def crear_documento():
 def actualizar_documento(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE documentos
         SET tipo_documento = %s, archivo = %s, fecha_subida = %s
@@ -387,7 +390,7 @@ def actualizar_documento(id):
 @app.route("/documentos/<int:id>", methods=["DELETE"])
 def eliminar_documento(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM documentos WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -401,7 +404,7 @@ def eliminar_documento(id):
 @app.route("/choferes/<int:chofer_id>/documentos", methods=["GET"])
 def obtener_documentos_de_chofer(chofer_id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM documentos WHERE chofer_id = %s;", (chofer_id,))
     resultados = cursor.fetchall()
     cursor.close()
@@ -415,7 +418,7 @@ def obtener_documentos_de_chofer(chofer_id):
 def crear_asignacion():
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
 
 
     cursor.execute("""
@@ -443,7 +446,7 @@ def crear_asignacion():
 @app.route("/asignaciones", methods=["GET"])
 def obtener_asignaciones():
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM asignaciones;")
     resultados = cursor.fetchall()
     cursor.close()
@@ -454,7 +457,7 @@ def obtener_asignaciones():
 @app.route("/asignaciones/<int:id>", methods=["GET"])
 def obtener_asignacion(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("SELECT * FROM asignaciones WHERE id = %s;", (id,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -465,7 +468,7 @@ def obtener_asignacion(id):
 def actualizar_asignacion(id):
     datos = request.get_json()
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("""
         UPDATE asignaciones
         SET fecha_inicio = %s, fecha_fin = %s
@@ -482,7 +485,7 @@ def actualizar_asignacion(id):
 @app.route("/asignaciones/<int:id>", methods=["DELETE"])
 def eliminar_asignacion(id):
     conexion = get_connection()
-    cursor = conexion.cursor()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM asignaciones WHERE id = %s;", (id,))
     conexion.commit()
     cursor.close()
@@ -491,8 +494,23 @@ def eliminar_asignacion(id):
 
 #endregion
 
-
-
+#region endpoint para obtener el chofer asignado a un carro
+@app.route("/carros/<string:carro_id>/chofer-actual", methods=["GET"])
+def obtener_chofer_actual(carro_id):
+    conexion = get_connection()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        SELECT choferes.*
+        FROM choferes
+        JOIN asignaciones ON choferes.id = asignaciones.chofer_id
+        WHERE asignaciones.carro_id = %s
+        AND asignaciones.fecha_fin IS NULL;
+    """, (carro_id,))
+    resultado = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+    return jsonify(resultado)
+#endregion
 
 
 

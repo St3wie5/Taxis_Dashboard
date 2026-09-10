@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SIXAT - Iniciar sesion</title>
+<link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="login-screen">
+    <div class="login-card">
+        <div class="login-brand">
+            <div class="icon-badge">S</div>
+            <h1>SIXAT</h1>
+            <p>Panel de administracion</p>
+        </div>
+
+        <form id="login-form">
+            <div class="field">
+                <label for="usuario">Usuario</label>
+                <input type="text" id="usuario" placeholder="admin" autocomplete="username">
+            </div>
+            <div class="field">
+                <label for="password">Contrasena</label>
+                <input type="password" id="password" placeholder="********" autocomplete="current-password">
+            </div>
+            <p class="login-error" id="login-error">Usuario o contrasena incorrectos.</p>
+            <button type="submit" class="btn-primary">Iniciar sesion</button>
+        </form>
+    </div>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>
