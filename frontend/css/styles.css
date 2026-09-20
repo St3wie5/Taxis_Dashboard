@@ -197,12 +197,18 @@ body {
     font-size: 13px;
     cursor: pointer;
     border: 1px solid var(--sixat-border);
-    background: var(--sixat-panel);
-}
+    background-color: var(--sixat-panel);
+    background-image: url('../img/carrito.png');
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    color: white;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}   
 
-.car-btn.activo { background: var(--sixat-green-bg); color: var(--sixat-green-text); border-color: var(--sixat-green-border); }
-.car-btn.fs { background: var(--sixat-red-bg); color: var(--sixat-red-text); border-color: var(--sixat-red-border); }
-.car-btn.baja { background: var(--sixat-gray-bg); color: var(--sixat-gray-text); }
+.car-btn.activo { background-color: var(--sixat-green-bg); color: var(--sixat-green-text); border-color: var(--sixat-green-border); }
+.car-btn.fs { background-color: var(--sixat-red-bg); color: var(--sixat-red-text); border-color: var(--sixat-red-border); }
+.car-btn.baja { background-color: var(--sixat-gray-bg); color: var(--sixat-gray-text); }
 
 .car-btn.selected {
     outline: 2px solid var(--sixat-black);

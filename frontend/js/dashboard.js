@@ -32,18 +32,50 @@ function renderFleet(carros) {
 }
 
 function mostrarInfoCarro(carro) {
-    // TODO: aqui vamos a llamar a la API para traer el chofer
-    // asignado actualmente a este carro (usando el endpoint de
-    // asignaciones) y sus datos, en vez de solo mostrar el carro.
+    const url = API_URL + "/carros/" + carro.id + "/chofer-actual";
+
     driverPanel.innerHTML = `
-        <div class="driver-header">
-            <div class="driver-avatar">?</div>
-            <div>
-                <p class="name">Pendiente de conectar con la API</p>
-                <p class="meta">Carro ${carro.id} - ${carro.estado}</p>
-            </div>
-        </div>
+        <p class="empty">Cargando información del chofer...</p>
     `;
+
+    fetch(url)
+    .then(function(respuesta) {
+        if (!respuesta.ok) {
+            throw new Error("No se pudo consultar el chofer");
+        }
+        return respuesta.json();
+    })
+    .then(function(chofer) {
+        if (!chofer) {
+            driverPanel.innerHTML = `
+                <p class="empty">El carro ${carro.id} no tiene un chofer asignado.</p>
+            `;
+            return;
+        }
+
+        const nombreCompleto = [
+            chofer.nombre,
+            chofer.ap_paterno,
+            chofer.ap_materno
+        ].filter(Boolean).join(" ");
+
+        driverPanel.innerHTML = `
+            <div class="driver-header">
+                <div class="driver-avatar">${chofer.nombre?.charAt(0).toUpperCase() || "?"}</div>
+                <div>
+                    <p class="name">${nombreCompleto || "Chofer sin nombre"}</p>
+                    <p class="meta">Carro ${carro.id} - ${carro.estado}</p>
+                    <p class="meta">Teléfono: ${chofer.telefono || "No registrado"}</p>
+                </div>
+            </div>
+        `;
+    })
+    .catch(function(error) {
+        console.error(error);
+        driverPanel.innerHTML = `
+            <p class="empty">No se pudo cargar la información del chofer.</p>
+        `;
+    });
 }
 
 fetch(API_URL + "/carros")
