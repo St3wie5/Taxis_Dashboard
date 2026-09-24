@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SIXAT - Agregar Chofer</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="icon" type="image/png" href="img/Logo_pagina.png">
+</head>
+<body>
+
+<header class="dashboard-header">
+    <div class="brand">SIXAT - Nuevo chofer</div>
+</header>
+
+<main class="dashboard-main">
+    <form id="chofer-form">
+        <div class="field">
+            <label for="nombre">Nombre(s)</label>
+            <input type="text" id="nombre" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for="ap_paterno">Apellido paterno</label>
+            <input type="text" id="ap_paterno" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for = "ap_materno">Apellido Materno</label>
+            <input type = "text" id="ap_materno"  maxlength="100" required>
+        </div>
+        <div class = "field">
+            <label for="Direccion">Direccion</label>
+            <input type = "text" id="direccion"  maxlength="100" required>
+        </div>
+        <div class = "field">
+            <label for = "telefono">Telefono</label>
+            <input type="text" id="telefono" maxlength="10" required>
+        </div>
+        <div class = "field">
+            <label for ="fecha_inicio">Fecha Inicio</label>
+            <input type="date" id = "fecha_inicio" required>
+        </div>
+        <div class = "field">
+            <label for= "reportado">Reportado</label>
+            <input type="checkbox" id="reportado">
+        </div>
+
+        <button type="submit" class="btn-primary">Guardar chofer</button>
+    </form>
+</main>
+
+<script src="js/formulario-chofer.js"></script>
+</body>
+</html>

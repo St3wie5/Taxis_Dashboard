@@ -56,7 +56,7 @@ def crear_chofer():
         datos["nombre"], datos["ap_paterno"], datos["ap_materno"],
         datos["direccion"], datos["telefono"], datos["fecha_inicio"], datos["reportado"]
     ))
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -130,7 +130,7 @@ def crear_carro():
         datos["id"], datos["marca"], datos["modelo"],
         datos["anio"], datos["placas"], datos["serie"], datos["motor"], datos["duenio"], datos["estado"]
     ))
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -206,7 +206,7 @@ def crear_cita():
         datos["carro_id"], datos["tipo_cita"],
         datos["fecha_cita"], datos["estado"]
     ))
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -284,7 +284,7 @@ def crear_cita_mantenimiento():
         datos["carro_id"], datos["tipo_mantenimiento"],
         datos["fecha"], datos["costo"], datos["kilometraje"], datos["notas"], datos["estado"]
     ))
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -360,7 +360,7 @@ def crear_documento():
     """, (
         datos["chofer_id"], datos["tipo_documento"], datos["archivo"], datos["fecha_subida"]
     ))
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
     conexion.commit()
     cursor.close()
     conexion.close()
@@ -435,7 +435,7 @@ def crear_asignacion():
             datos["chofer_id"], datos["fecha_inicio"], datos["carro_id"]
         ))
 
-    nuevo_id = cursor.fetchone()[0]
+    nuevo_id = cursor.fetchone()["id"]
 
     
     conexion.commit()
