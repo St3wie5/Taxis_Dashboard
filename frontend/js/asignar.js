@@ -8,7 +8,7 @@ const carroPreseleccionado = params.get("carro_id");
 
 inputFecha.value = new Date().toISOString().split("T")[0];
 
-fetch(API_URL + "/carros")
+fetchConToken(API_URL + "/carros")
     .then(function(respuesta) { return respuesta.json(); })
     .then(function(carros) {
         carros.forEach(function(carro) {
@@ -22,7 +22,7 @@ fetch(API_URL + "/carros")
         }
     });
 
-fetch(API_URL + "/choferes")
+fetchConToken(API_URL + "/choferes")
     .then(function(respuesta) { return respuesta.json(); })
     .then(function(choferes) {
         choferes.forEach(function(chofer) {
@@ -48,7 +48,7 @@ form.addEventListener("submit", function (event) {
         fecha_inicio: inputFecha.value
     };
 
-    fetch(API_URL + "/asignaciones", {
+    fetchConToken(API_URL + "/asignaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)

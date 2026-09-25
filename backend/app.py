@@ -1,13 +1,16 @@
 import os
 import uuid
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
+from functools import wraps
 
-from flask import Flask, jsonify, request, send_from_directory
+import jwt
+from flask import Flask, jsonify, request, send_from_directory, g
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
+from werkzeug.security import check_password_hash
 
 load_dotenv()
 app = Flask(__name__)
@@ -16,6 +19,72 @@ CORS(app)
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+JWT_SECRET = os.getenv("JWT_SECRET_KEY")
+JWT_HORAS_EXPIRACION = 8
+
+
+def generar_token(usuario):
+    payload = {
+        "user_id": usuario["id"],
+        "username": usuario["username"],
+        "rol": usuario["rol"],
+        "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_HORAS_EXPIRACION),
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+
+def requiere_token(f):
+    @wraps(f)
+    def decorada(*args, **kwargs):
+        auth_header = request.headers.get("Authorization", "")
+        if not auth_header.startswith("Bearer "):
+            return jsonify({"error": "Falta el token de autenticacion"}), 401
+
+        token = auth_header.split(" ", 1)[1]
+        try:
+            payload = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+        except jwt.ExpiredSignatureError:
+            return jsonify({"error": "El token expiro, inicia sesion de nuevo"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"error": "Token invalido"}), 401
+
+        g.usuario_actual = payload
+        return f(*args, **kwargs)
+    return decorada
+
+
+def requiere_admin(f):
+    @wraps(f)
+    @requiere_token
+    def decorada(*args, **kwargs):
+        if g.usuario_actual.get("rol") != "administrador":
+            return jsonify({"error": "Se requiere rol de administrador"}), 403
+        return f(*args, **kwargs)
+    return decorada
+
+
+@app.route("/login", methods=["POST"])
+def login():
+    datos = request.get_json()
+    username = datos.get("username")
+    password = datos.get("password")
+
+    if not username or not password:
+        return jsonify({"error": "Faltan usuario o contrasena"}), 400
+
+    conexion = get_connection()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("SELECT * FROM usuarios WHERE username = %s;", (username,))
+    usuario = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+
+    if not usuario or not check_password_hash(usuario["password_hash"], password):
+        return jsonify({"error": "Usuario o contrasena incorrectos"}), 401
+
+    token = generar_token(usuario)
+    return jsonify({"token": token, "username": usuario["username"], "rol": usuario["rol"]})
 
 def get_connection():
      return psycopg2.connect(
@@ -28,6 +97,7 @@ def get_connection():
 #region  CRUD completo  para tabla choferes 
 
 @app.route("/choferes", methods=["GET"])
+@requiere_token
 def obtener_choferes():
      conexion = get_connection()
      cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -39,6 +109,7 @@ def obtener_choferes():
 
 
 @app.route("/choferes/<int:id>", methods=["GET"])
+@requiere_token
 def obtener_chofer(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -50,6 +121,7 @@ def obtener_chofer(id):
 
 
 @app.route("/choferes", methods=["POST"])
+@requiere_admin
 def crear_chofer():
     datos = request.get_json()
     conexion = get_connection()
@@ -69,6 +141,7 @@ def crear_chofer():
     return jsonify({"mensaje": "Chofer creado", "id": nuevo_id}), 201
 
 @app.route("/choferes/<int:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_chofer(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -89,6 +162,7 @@ def actualizar_chofer(id):
     return jsonify({"mensaje": "Chofer actualizado", "filas_afectadas": filas_afectadas})
 
 @app.route("/choferes/<int:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_chofer(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -102,6 +176,7 @@ def eliminar_chofer(id):
 #region metodos de api para tabla de carros
 
 @app.route("/carros", methods=["GET"])
+@requiere_token
 def obtener_carros():
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -113,6 +188,7 @@ def obtener_carros():
 
 
 @app.route("/carros/<string:id>", methods=["GET"])
+@requiere_token
 def obtener_carro(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -124,6 +200,7 @@ def obtener_carro(id):
 
 
 @app.route("/carros", methods=["POST"])
+@requiere_admin
 def crear_carro():
     datos = request.get_json()
     conexion = get_connection()
@@ -143,6 +220,7 @@ def crear_carro():
     return jsonify({"mensaje": "Carro creado", "id": nuevo_id}), 201
 
 @app.route("/carros/<string:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_carro(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -164,6 +242,7 @@ def actualizar_carro(id):
 
 
 @app.route("/carros/<string:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_carro(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -178,6 +257,7 @@ def eliminar_carro(id):
 #region CRUD completo de tabla citas_gobierno
 
 @app.route("/citas_gob", methods=["GET"])
+@requiere_token
 def obtener_citas():
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -189,6 +269,7 @@ def obtener_citas():
 
 
 @app.route("/citas_gob/<int:id>", methods=["GET"])
+@requiere_token
 def obtener_cita(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -200,6 +281,7 @@ def obtener_cita(id):
 
 
 @app.route("/citas_gob", methods=["POST"])
+@requiere_admin
 def crear_cita():
     datos = request.get_json()
     conexion = get_connection()
@@ -221,6 +303,7 @@ def crear_cita():
 
 
 @app.route("/citas_gob/<int:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_cita(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -242,6 +325,7 @@ def actualizar_cita(id):
 
 
 @app.route("/citas_gob/<int:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_cita(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -256,6 +340,7 @@ def eliminar_cita(id):
 #region CRUD completo de tabla mantenimientos 
 
 @app.route("/mantenimientos", methods=["GET"])
+@requiere_token
 def obtener_mantenimientos():
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -267,6 +352,7 @@ def obtener_mantenimientos():
 
 
 @app.route("/mantenimientos/<int:id>", methods=["GET"])
+@requiere_token
 def obtener_mantenimiento(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -278,6 +364,7 @@ def obtener_mantenimiento(id):
 
 
 @app.route("/mantenimientos", methods=["POST"])
+@requiere_admin
 def crear_cita_mantenimiento():
     datos = request.get_json()
     conexion = get_connection()
@@ -299,6 +386,7 @@ def crear_cita_mantenimiento():
 
 
 @app.route("/mantenimientos/<int:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_mantenimiento(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -319,6 +407,7 @@ def actualizar_mantenimiento(id):
 
 
 @app.route("/mantenimientos/<int:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_mantenimiento(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -333,6 +422,7 @@ def eliminar_mantenimiento(id):
 #region CRUD Completo de tabla de documentos
 
 @app.route("/documentos", methods=["GET"])
+@requiere_token
 def obtener_documentos():
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -344,6 +434,7 @@ def obtener_documentos():
 
 
 @app.route("/documentos/<int:id>", methods=["GET"])
+@requiere_token
 def obtener_documento(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -355,6 +446,7 @@ def obtener_documento(id):
 
 
 @app.route("/documentos", methods=["POST"])
+@requiere_admin
 def crear_documento():
     datos = request.get_json()
     conexion = get_connection()
@@ -375,6 +467,7 @@ def crear_documento():
 
 
 @app.route("/documentos/<int:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_documento(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -394,6 +487,7 @@ def actualizar_documento(id):
 
 
 @app.route("/documentos/<int:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_documento(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -405,6 +499,7 @@ def eliminar_documento(id):
 
 
 @app.route("/documentos/upload", methods=["POST"])
+@requiere_admin
 def subir_documento():
     if "archivo" not in request.files:
         return jsonify({"error": "No se envio ningun archivo"}), 400
@@ -447,6 +542,7 @@ def servir_documento(nombre_archivo):
 #region endpoint de chofer con todos sus docs
 
 @app.route("/choferes/<int:chofer_id>/documentos", methods=["GET"])
+@requiere_token
 def obtener_documentos_de_chofer(chofer_id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -460,6 +556,7 @@ def obtener_documentos_de_chofer(chofer_id):
 
 #region endpoint de asignaciones
 @app.route("/asignaciones", methods=["POST"])
+@requiere_admin
 def crear_asignacion():
     datos = request.get_json()
     conexion = get_connection()
@@ -489,6 +586,7 @@ def crear_asignacion():
     return jsonify({"mensaje": "Asignación creada", "id": nuevo_id}), 201
 
 @app.route("/asignaciones", methods=["GET"])
+@requiere_token
 def obtener_asignaciones():
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -500,6 +598,7 @@ def obtener_asignaciones():
 
 
 @app.route("/asignaciones/<int:id>", methods=["GET"])
+@requiere_token
 def obtener_asignacion(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -510,6 +609,7 @@ def obtener_asignacion(id):
     return jsonify(resultado)
 
 @app.route("/asignaciones/<int:id>", methods=["PUT"])
+@requiere_admin
 def actualizar_asignacion(id):
     datos = request.get_json()
     conexion = get_connection()
@@ -528,6 +628,7 @@ def actualizar_asignacion(id):
     return jsonify({"mensaje": "Asignación actualizada", "filas_afectadas": filas_afectadas})
 
 @app.route("/asignaciones/<int:id>", methods=["DELETE"])
+@requiere_admin
 def eliminar_asignacion(id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)
@@ -541,6 +642,7 @@ def eliminar_asignacion(id):
 
 #region endpoint para obtener el chofer asignado a un carro
 @app.route("/carros/<string:carro_id>/chofer-actual", methods=["GET"])
+@requiere_token
 def obtener_chofer_actual(carro_id):
     conexion = get_connection()
     cursor = conexion.cursor(cursor_factory=RealDictCursor)

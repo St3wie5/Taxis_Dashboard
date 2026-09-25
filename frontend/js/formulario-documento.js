@@ -1,7 +1,7 @@
 const form = document.getElementById("documento-form");
 const selectChofer = document.getElementById("chofer_id");
 
-fetch(API_URL + "/choferes")
+fetchConToken(API_URL + "/choferes")
     .then(function(respuesta) { return respuesta.json(); })
     .then(function(choferes) {
         choferes.forEach(function(chofer) {
@@ -32,7 +32,7 @@ form.addEventListener("submit", function (event) {
     datos.append("tipo_documento", document.getElementById("tipo_documento").value);
     datos.append("archivo", archivo);
 
-    fetch(API_URL + "/documentos/upload", {
+    fetchConToken(API_URL + "/documentos/upload", {
         method: "POST",
         body: datos
     })

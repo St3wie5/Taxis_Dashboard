@@ -1,6 +1,6 @@
 const tablaCarros = document.getElementById("tabla-carros");
 
-fetch(API_URL + "/carros")
+fetchConToken(API_URL + "/carros")
     .then(function(respuesta) {
         if (!respuesta.ok) {
             throw new Error("No se pudieron cargar los carros");
@@ -34,7 +34,7 @@ fetch(API_URL + "/carros")
                 const confirmar = confirm("¿Seguro que quieres eliminar el carro " + carro.id + "?");
                 if (!confirmar) return;
 
-                fetch(API_URL + "/carros/" + carro.id, {
+                fetchConToken(API_URL + "/carros/" + carro.id, {
                     method: "DELETE"
                 })
                 .then(function(respuesta) {

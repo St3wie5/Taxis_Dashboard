@@ -37,7 +37,7 @@ function mostrarInfoCarro(carro) {
         <p class="empty">Cargando información del chofer...</p>
     `;
 
-    fetch(url)
+    fetchConToken(url)
     .then(function(respuesta) {
         if (!respuesta.ok) {
             throw new Error("No se pudo consultar el chofer");
@@ -79,7 +79,7 @@ function mostrarInfoCarro(carro) {
     });
 }
 
-fetch(API_URL + "/carros")
+fetchConToken(API_URL + "/carros")
     .then(function(respuesta) {
         return respuesta.json();
     })

@@ -1,6 +1,6 @@
 const tablaChoferes = document.getElementById("tabla-choferes");
 
-fetch(API_URL + "/choferes")
+fetchConToken(API_URL + "/choferes")
     .then(function(respuesta) {
         if (!respuesta.ok) {
             throw new Error("No se pudieron cargar los choferes");
@@ -34,7 +34,7 @@ fetch(API_URL + "/choferes")
                 const confirmar = confirm("¿Seguro que quieres eliminar a " + nombre + "?");
                 if (!confirmar) return;
 
-                fetch(API_URL + "/choferes/" + chofer.id, {
+                fetchConToken(API_URL + "/choferes/" + chofer.id, {
                     method: "DELETE"
                 })
                 .then(function(respuesta) {

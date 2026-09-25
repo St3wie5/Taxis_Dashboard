@@ -1,8 +1,8 @@
 const tablaDocumentos = document.getElementById("tabla-documentos");
 
 Promise.all([
-    fetch(API_URL + "/documentos").then(function(r) { return r.json(); }),
-    fetch(API_URL + "/choferes").then(function(r) { return r.json(); })
+    fetchConToken(API_URL + "/documentos").then(function(r) { return r.json(); }),
+    fetchConToken(API_URL + "/choferes").then(function(r) { return r.json(); })
 ])
 .then(function(resultados) {
     const documentos = resultados[0];
@@ -34,7 +34,7 @@ Promise.all([
             const confirmar = confirm("¿Eliminar este documento de " + nombreChofer + "?");
             if (!confirmar) return;
 
-            fetch(API_URL + "/documentos/" + doc.id, { method: "DELETE" })
+            fetchConToken(API_URL + "/documentos/" + doc.id, { method: "DELETE" })
                 .then(function(respuesta) { return respuesta.json(); })
                 .then(function() { fila.remove(); });
         });

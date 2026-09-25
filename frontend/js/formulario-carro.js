@@ -10,7 +10,7 @@ if (idEditar) {
     inputId.disabled = true;
     campoChofer.style.display = "none";
 
-    fetch(API_URL + "/carros/" + idEditar)
+    fetchConToken(API_URL + "/carros/" + idEditar)
         .then(function(respuesta) { return respuesta.json(); })
         .then(function(carro) {
             document.getElementById("marca").value = carro.marca;
@@ -23,7 +23,7 @@ if (idEditar) {
             document.getElementById("estado").value = carro.estado;
         });
 } else {
-    fetch(API_URL + "/choferes")
+    fetchConToken(API_URL + "/choferes")
         .then(function(respuesta) { return respuesta.json(); })
         .then(function(choferes) {
             choferes.forEach(function(chofer) {
@@ -62,7 +62,7 @@ form.addEventListener("submit", function (event) {
         datos.id = inputId.value.trim().toUpperCase();
     }
 
-    fetch(url, {
+    fetchConToken(url, {
         method: metodo,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
@@ -72,7 +72,7 @@ form.addEventListener("submit", function (event) {
         const choferSeleccionado = !idEditar ? selectChofer.value : "";
 
         if (choferSeleccionado) {
-            return fetch(API_URL + "/asignaciones", {
+            return fetchConToken(API_URL + "/asignaciones", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

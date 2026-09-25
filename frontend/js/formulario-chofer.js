@@ -14,7 +14,7 @@ function aTituloCapital(texto) {
 }
 
 if (idEditar) {
-    fetch(API_URL + "/choferes/" + idEditar)
+    fetchConToken(API_URL + "/choferes/" + idEditar)
         .then(function(respuesta) { return respuesta.json(); })
         .then(function(chofer) {
             document.getElementById("nombre").value = chofer.nombre;
@@ -42,7 +42,7 @@ form.addEventListener("submit", function (event) {
     const metodo = idEditar ? "PUT" : "POST";
     const url = idEditar ? API_URL + "/choferes/" + idEditar : API_URL + "/choferes";
 
-    fetch(url, {
+    fetchConToken(url, {
         method: metodo,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(datos)
