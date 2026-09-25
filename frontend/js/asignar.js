@@ -1,4 +1,3 @@
-const API_URL = "http://127.0.0.1:5000";
 const selectCarro = document.getElementById("carro_id");
 const selectChofer = document.getElementById("chofer_id");
 const inputFecha = document.getElementById("fecha_inicio");
