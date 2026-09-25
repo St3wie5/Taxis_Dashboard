@@ -49,6 +49,7 @@ function mostrarInfoCarro(carro) {
         if (!chofer) {
             driverPanel.innerHTML = `
                 <p class="empty">El carro ${carro.id} no tiene un chofer asignado.</p>
+                <a class="btn-primary driver-edit-link" href="asignar.html?carro_id=${encodeURIComponent(carro.id)}">Asignar chofer</a>
             `;
             return;
         }
@@ -68,6 +69,7 @@ function mostrarInfoCarro(carro) {
                     <p class="meta">Teléfono: ${chofer.telefono || "No registrado"}</p>
                 </div>
             </div>
+            <a class="btn-primary driver-edit-link" href="agregar-chofer.html?id=${chofer.id}">Editar chofer</a>
         `;
     })
     .catch(function(error) {

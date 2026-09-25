@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>SIXAT - Agregar Carro</title>
+<link rel="stylesheet" href="css/styles.css?v=5">
+<link rel="icon" type="image/png" href="img/Logo_pagina.png">
+</head>
+<body>
+<div class="taxi-banner"></div>
+
+<header class="dashboard-header">
+    <div class="brand">SIXAT - Nuevo carro</div>
+    <nav class="main-nav">
+        <a href="dashboard.html" class="nav-btn">Dashboard</a>
+        <a href="carros.html" class="nav-btn">Carros</a>
+        <a href="choferes.html" class="nav-btn">Choferes</a>
+        <a href="asignar.html" class="nav-btn">Asignar</a>
+    </nav>
+</header>
+
+<div id="toast-container"></div>
+
+<main class="dashboard-main">
+    <form id="carro-form">
+        <div class="field">
+            <label for="id">ID (número económico)</label>
+            <input type="text" id="id" maxlength="20" required>
+        </div>
+        <div class="field">
+            <label for="marca">Marca</label>
+            <input type="text" id="marca" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="modelo">Modelo</label>
+            <input type="text" id="modelo" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="anio">Año</label>
+            <input type="number" id="anio" min="1990" max="2100" required>
+        </div>
+        <div class="field">
+            <label for="placas">Placas</label>
+            <input type="text" id="placas" maxlength="20" required>
+        </div>
+        <div class="field">
+            <label for="serie">Número de serie</label>
+            <input type="text" id="serie" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="motor">Número de motor</label>
+            <input type="text" id="motor" maxlength="50" required>
+        </div>
+        <div class="field">
+            <label for="duenio">Dueño</label>
+            <input type="text" id="duenio" maxlength="100" required>
+        </div>
+        <div class="field">
+            <label for="estado">Estado</label>
+            <select id="estado" required>
+                <option value="activo">Activo</option>
+                <option value="f/s">F/S</option>
+                <option value="baja">Baja</option>
+            </select>
+        </div>
+        <div class="field" id="campo-chofer">
+            <label for="chofer_id">Asignar chofer (opcional)</label>
+            <select id="chofer_id">
+                <option value="">-- Sin chofer asignado --</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-primary">Guardar carro</button>
+    </form>
+</main>
+
+<script src="js/ui.js"></script>
+<script src="js/formulario-carro.js"></script>
+</body>
+</html>

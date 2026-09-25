@@ -22,8 +22,8 @@ fetch(API_URL + "/choferes")
                 <td></td>
                 <td></td>
                 <td>
-                    <a href="editar-chofer.html?id=${encodeURIComponent(chofer.id)}">Editar</a>
-                    <button type="button" data-id="${chofer.id}">Eliminar</button>
+                    <a href="agregar-chofer.html?id=${encodeURIComponent(chofer.id)}" class="btn-edit">Editar</a>
+                    <button type="button" class="btn-delete" data-id="${chofer.id}">Eliminar</button>
                 </td>
             `;
 
