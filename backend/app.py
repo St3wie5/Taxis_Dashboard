@@ -1,15 +1,21 @@
 import os
+import uuid
+from datetime import date
 
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request, send_from_directory
 from dotenv import load_dotenv
 import psycopg2
 from psycopg2.extras import RealDictCursor
-from flask import Flask, jsonify, request
 from flask_cors import CORS
+from werkzeug.utils import secure_filename
 
 load_dotenv()
-app = Flask(__name__)   
+app = Flask(__name__)
 CORS(app)
+
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 def get_connection():
      return psycopg2.connect(
@@ -396,6 +402,45 @@ def eliminar_documento(id):
     cursor.close()
     conexion.close()
     return jsonify({"mensaje": "Documento eliminado"})
+
+
+@app.route("/documentos/upload", methods=["POST"])
+def subir_documento():
+    if "archivo" not in request.files:
+        return jsonify({"error": "No se envio ningun archivo"}), 400
+
+    archivo = request.files["archivo"]
+    chofer_id = request.form.get("chofer_id")
+    tipo_documento = request.form.get("tipo_documento")
+
+    if archivo.filename == "" or not chofer_id or not tipo_documento:
+        return jsonify({"error": "Faltan datos (chofer_id, tipo_documento o archivo)"}), 400
+
+    nombre_seguro = secure_filename(archivo.filename)
+    nombre_unico = uuid.uuid4().hex + "_" + nombre_seguro
+    ruta_completa = os.path.join(app.config["UPLOAD_FOLDER"], nombre_unico)
+    archivo.save(ruta_completa)
+
+    fecha_subida = date.today().isoformat()
+
+    conexion = get_connection()
+    cursor = conexion.cursor(cursor_factory=RealDictCursor)
+    cursor.execute("""
+        INSERT INTO documentos (chofer_id, tipo_documento, archivo, fecha_subida)
+        VALUES (%s, %s, %s, %s)
+        RETURNING id;
+    """, (chofer_id, tipo_documento, nombre_unico, fecha_subida))
+    nuevo_id = cursor.fetchone()["id"]
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+
+    return jsonify({"mensaje": "Documento subido", "id": nuevo_id, "archivo": nombre_unico}), 201
+
+
+@app.route("/uploads/<path:nombre_archivo>", methods=["GET"])
+def servir_documento(nombre_archivo):
+    return send_from_directory(app.config["UPLOAD_FOLDER"], nombre_archivo)
 
 #endregion 
 

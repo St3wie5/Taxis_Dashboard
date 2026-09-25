@@ -21,3 +21,4 @@ Thumbs.db
 # Archivos locales
 .env
 .env.local
+backend/uploads/

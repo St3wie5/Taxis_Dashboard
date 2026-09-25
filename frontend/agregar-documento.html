@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>SIXAT - Asignar chofer</title>
+<title>SIXAT - Agregar Documento</title>
 <link rel="stylesheet" href="css/styles.css?v=5">
 <link rel="icon" type="image/png" href="img/Logo_pagina.png">
 </head>
@@ -10,7 +10,7 @@
 <div class="taxi-banner"></div>
 
 <header class="dashboard-header">
-    <div class="brand">SIXAT - Asignar chofer a carro</div>
+    <div class="brand">SIXAT - Nuevo documento</div>
     <nav class="main-nav">
         <a href="dashboard.html" class="nav-btn">Dashboard</a>
         <a href="carros.html" class="nav-btn">Carros</a>
@@ -23,25 +23,31 @@
 <div id="toast-container"></div>
 
 <main class="dashboard-main">
-    <form id="asignar-form">
-        <div class="field">
-            <label for="carro_id">Carro</label>
-            <select id="carro_id" required></select>
-        </div>
+    <form id="documento-form">
         <div class="field">
             <label for="chofer_id">Chofer</label>
             <select id="chofer_id" required></select>
         </div>
         <div class="field">
-            <label for="fecha_inicio">Fecha de inicio</label>
-            <input type="date" id="fecha_inicio" required>
+            <label for="tipo_documento">Tipo de documento</label>
+            <select id="tipo_documento" required>
+                <option value="Licencia de conducir">Licencia de conducir</option>
+                <option value="INE">INE</option>
+                <option value="Tarjeta de circulacion">Tarjeta de circulación</option>
+                <option value="Comprobante de domicilio">Comprobante de domicilio</option>
+                <option value="Otro">Otro</option>
+            </select>
+        </div>
+        <div class="field">
+            <label for="archivo">Archivo (PDF o imagen)</label>
+            <input type="file" id="archivo" accept=".pdf,image/*" required>
         </div>
 
-        <button type="submit" class="btn-primary">Asignar</button>
+        <button type="submit" class="btn-primary">Subir documento</button>
     </form>
 </main>
 
 <script src="js/ui.js"></script>
-<script src="js/asignar.js"></script>
+<script src="js/formulario-documento.js"></script>
 </body>
 </html>

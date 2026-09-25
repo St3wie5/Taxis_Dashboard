@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>SIXAT - Choferes</title>
+<title>SIXAT - Documentos</title>
 <link rel="stylesheet" href="css/styles.css?v=5">
 <link rel="icon" type="image/png" href="img/Logo_pagina.png">
 </head>
@@ -10,7 +10,7 @@
 <div class="taxi-banner"></div>
 
 <header class="dashboard-header">
-    <div class="brand">SIXAT - Choferes</div>
+    <div class="brand">SIXAT - Documentos</div>
     <nav class="main-nav">
         <a href="dashboard.html" class="nav-btn">Dashboard</a>
         <a href="carros.html" class="nav-btn">Carros</a>
@@ -23,23 +23,24 @@
 <div id="toast-container"></div>
 
 <main class="dashboard-main">
-    <a href="agregar-chofer.html" class="btn-primary" style="display:inline-block; width:auto; text-decoration:none; margin-bottom:1rem;">+ Agregar chofer</a>
+    <a href="agregar-documento.html" class="btn-primary" style="display:inline-block; width:auto; text-decoration:none; margin-bottom:1rem;">+ Agregar documento</a>
 
     <table style="width:100%; border-collapse: collapse;">
         <thead>
             <tr style="text-align:left; border-bottom: 1px solid var(--sixat-border);">
-                <th>Nombre</th>
-                <th>Telefono</th>
-                <th>Reportado</th>
+                <th>Chofer</th>
+                <th>Tipo</th>
+                <th>Fecha subida</th>
+                <th>Archivo</th>
                 <th>Acciones</th>
             </tr>
         </thead>
-        <tbody id="tabla-choferes">
+        <tbody id="tabla-documentos">
         </tbody>
     </table>
 </main>
 
 <script src="js/ui.js"></script>
-<script src="js/choferes.js"></script>
+<script src="js/documentos.js"></script>
 </body>
 </html>
