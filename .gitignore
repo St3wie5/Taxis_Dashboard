@@ -23,3 +23,6 @@ Thumbs.db
 .env.local
 backend/uploads/
 backend/sixat_backup.backup
+htmlcov/
+.coverage
+.pytest_cache/
