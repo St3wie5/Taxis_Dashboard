@@ -32,7 +32,9 @@ form.addEventListener("submit", function (event) {
             return;
         }
 
-        guardarSesion(resultado.datos.token, resultado.datos.username, resultado.datos.rol);
+        localStorage.setItem("sixat_token", resultado.datos.token);
+        localStorage.setItem("sixat_usuario", resultado.datos.username);
+        localStorage.setItem("sixat_rol", resultado.datos.rol);
         window.location.href = "dashboard.html";
     })
     .catch(function(error) {
