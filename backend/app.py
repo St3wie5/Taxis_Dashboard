@@ -666,6 +666,6 @@ def obtener_chofer_actual(carro_id):
 if __name__ == "__main__":
     puerto = int(os.getenv("PORT", 5000))
     modo_debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
-    app.run(host="0.0.0.0", port=puerto, debug=modo_debug)
+    app.run(host="0.0.0.0", port=puerto, debug=modo_debug)  # nosec B104 - bind requerido por Render (hosting en la nube)
 
     
